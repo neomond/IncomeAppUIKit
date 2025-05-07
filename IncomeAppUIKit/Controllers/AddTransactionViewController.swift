@@ -12,6 +12,7 @@ class AddTransactionViewController: UIViewController {
     
     // MARK: - Properties
     weak var delegate: AddTransactionDelegate?
+    weak var dismissDelegate: TransactionDismissDelegate?
     
     private var amount: Double = 0.0
     private var transactionTitle: String = ""
@@ -119,20 +120,24 @@ class AddTransactionViewController: UIViewController {
     
     // MARK: - Actions
     @objc private func cancelTapped() {
-        dismiss(animated: true)
+        dismissDelegate?.didDismissTransaction()
     }
     
     @objc private func createTapped() {
         // Validate title
         guard let title = titleTextField.text, title.count >= 2 else {
-            showAlert(title: "Invalid title", message: "Title must be at least 2 characters long")
+            showAlert(
+                title: "Invalid title",
+                message: "Title must be at least 2 characters long")
             return
         }
         
         // Parse amount
         guard let amountText = amountTextField.text,
               let amountValue = Double(amountText.replacingOccurrences(of: "$", with: "").replacingOccurrences(of: ",", with: "")) else {
-            showAlert(title: "Invalid amount", message: "Please enter a valid amount")
+            showAlert(
+                title: "Invalid amount",
+                message: "Please enter a valid amount")
             return
         }
         
@@ -148,7 +153,7 @@ class AddTransactionViewController: UIViewController {
         )
         
         delegate?.didAddTransaction(transaction)
-        dismiss(animated: true)
+        dismissDelegate?.didDismissTransaction()
     }
     
     // MARK: - Helper Methods

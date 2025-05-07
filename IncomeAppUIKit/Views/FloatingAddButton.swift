@@ -26,9 +26,6 @@ class FloatingAddButton: UIButton {
         titleLabel?.font = UIFont.systemFont(ofSize: 30)
         backgroundColor = AppColors.primaryLightGreen
         layer.cornerRadius = 35
-        layer.shadowColor = UIColor.black.cgColor
-        layer.shadowOpacity = 0.3
-        layer.shadowRadius = 5
-        layer.shadowOffset = CGSize(width: 0, height: 3)
+        applyShadow()
     }
 }

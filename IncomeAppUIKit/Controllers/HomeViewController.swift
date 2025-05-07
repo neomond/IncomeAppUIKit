@@ -112,73 +112,92 @@ class HomeViewController: UIViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupView()
+        setupViews()
+        setupConstraints()
         setupNavigationBar()
         updateBalanceInfo()
     }
     
-    // MARK: - Setup
-    private func setupView() {
+    // MARK: - Setup Views
+    private func setupViews() {
         view.backgroundColor = .systemBackground
         
-        setupBalanceView()
-        
-        view.addSubview(tableView)
-        tableView.snp.makeConstraints { make in
-            make.top.equalTo(balanceView.snp.bottom).offset(16)
-            make.leading.trailing.bottom.equalToSuperview()
-        }
-        
-        view.addSubview(addButton)
-        addButton.snp.makeConstraints { make in
-            make.trailing.equalToSuperview().offset(-20)
-            make.bottom.equalTo(view.safeAreaLayoutGuide).offset(-20)
-            make.width.height.equalTo(70)
-        }
+        addSubviewsToView()
+        addSubviewsToBalanceView()
     }
     
-    private func setupBalanceView() {
+    private func addSubviewsToView() {
         view.addSubview(balanceView)
+        view.addSubview(tableView)
+        view.addSubview(addButton)
+    }
+    
+    private func addSubviewsToBalanceView() {
+        balanceView.addSubview(balanceLabel)
+        balanceView.addSubview(balanceAmountLabel)
+        balanceView.addSubview(expenseLabel)
+        balanceView.addSubview(expenseAmountLabel)
+        balanceView.addSubview(incomeLabel)
+        balanceView.addSubview(incomeAmountLabel)
+    }
+    
+    // MARK: - Setup Constraints
+    private func setupConstraints() {
+        setupBalanceViewConstraints()
+        setupTableViewConstraints()
+        setupAddButtonConstraints()
+    }
+    
+    private func setupBalanceViewConstraints() {
         balanceView.snp.makeConstraints { make in
             make.top.equalTo(view.safeAreaLayoutGuide).offset(16)
             make.leading.trailing.equalToSuperview().inset(16)
             make.height.equalTo(170)
         }
         
-        balanceView.addSubview(balanceLabel)
         balanceLabel.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(16)
             make.leading.equalToSuperview().offset(16)
         }
         
-        balanceView.addSubview(balanceAmountLabel)
         balanceAmountLabel.snp.makeConstraints { make in
             make.top.equalTo(balanceLabel.snp.bottom).offset(4)
             make.leading.equalToSuperview().offset(16)
         }
         
-        balanceView.addSubview(expenseLabel)
         expenseLabel.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(16)
             make.top.equalTo(balanceAmountLabel.snp.bottom).offset(26)
         }
         
-        balanceView.addSubview(expenseAmountLabel)
         expenseAmountLabel.snp.makeConstraints { make in
             make.top.equalTo(expenseLabel.snp.bottom).offset(4)
             make.leading.equalToSuperview().offset(16)
         }
         
-        balanceView.addSubview(incomeLabel)
         incomeLabel.snp.makeConstraints { make in
             make.leading.equalTo(expenseLabel.snp.trailing).offset(30)
             make.top.equalTo(balanceAmountLabel.snp.bottom).offset(26)
         }
         
-        balanceView.addSubview(incomeAmountLabel)
         incomeAmountLabel.snp.makeConstraints { make in
             make.top.equalTo(incomeLabel.snp.bottom).offset(4)
             make.leading.equalTo(expenseLabel.snp.trailing).offset(25)
+        }
+    }
+    
+    private func setupTableViewConstraints() {
+        tableView.snp.makeConstraints { make in
+            make.top.equalTo(balanceView.snp.bottom).offset(16)
+            make.leading.trailing.bottom.equalToSuperview()
+        }
+    }
+    
+    private func setupAddButtonConstraints() {
+        addButton.snp.makeConstraints { make in
+            make.trailing.equalToSuperview().offset(-20)
+            make.bottom.equalTo(view.safeAreaLayoutGuide).offset(-20)
+            make.width.height.equalTo(70)
         }
     }
     
@@ -204,7 +223,11 @@ class HomeViewController: UIViewController {
     @objc private func addButtonTapped() {
         let addVC = AddTransactionViewController()
         addVC.delegate = self
+        addVC.dismissDelegate = self
+        
         let navController = UINavigationController(rootViewController: addVC)
+        navController.modalPresentationStyle = .fullScreen
+        
         present(navController, animated: true)
     }
     
@@ -254,4 +277,8 @@ extension HomeViewController: AddTransactionDelegate {
     }
 }
 
-
+extension HomeViewController: TransactionDismissDelegate {
+    func didDismissTransaction() {
+        dismiss(animated: true)
+    }
+}

@@ -10,3 +10,7 @@ import Foundation
 protocol AddTransactionDelegate: AnyObject {
     func didAddTransaction(_ transaction: Transaction)
 }
+
+protocol TransactionDismissDelegate: AnyObject {
+    func didDismissTransaction()
+}

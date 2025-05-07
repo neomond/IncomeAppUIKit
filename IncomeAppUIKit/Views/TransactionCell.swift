@@ -21,7 +21,7 @@ class TransactionCell: UITableViewCell {
     
     private lazy var dateView: UIView = {
         let view = UIView()
-        view.backgroundColor = AppColors.lightGrayShade.withAlphaComponent(0.5)
+        view.backgroundColor = AppColors.lightGrayShade
         view.layer.cornerRadius = 8
         return view
     }()

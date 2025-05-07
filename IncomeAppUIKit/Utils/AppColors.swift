@@ -8,6 +8,10 @@
 import UIKit
 
 struct AppColors {
-    static let primaryLightGreen = UIColor(red: 76/255, green: 187/255, blue: 123/255, alpha: 1.0)
-    static let lightGrayShade = UIColor(red: 240/255, green: 240/255, blue: 240/255, alpha: 1.0)
+    static let primaryLightGreen = UIColor(named: "primaryLightGreen") ?? fallbackGreen
+    static let lightGrayShade = UIColor(named: "lightGrayShade") ?? fallbackGray
+    
+    // Fallbacks in case the named colors aren't found
+    private static let fallbackGreen = UIColor(named: "#10AC84")
+    private static let fallbackGray = UIColor(named: "#D8D8D8")
 }
