@@ -221,9 +221,17 @@ class HomeViewController: UIViewController {
     }
     
     @objc private func addButtonTapped() {
+        presentAddTransactionViewController(nil, at: nil)
+    }
+    
+    private func presentAddTransactionViewController(_ transaction: Transaction?, at index: Int?) {
         let addVC = AddTransactionViewController()
         addVC.delegate = self
         addVC.dismissDelegate = self
+        
+        if let transaction = transaction, let index = index {
+            addVC.configureForEditing(transaction: transaction, at: index)
+        }
         
         let navController = UINavigationController(rootViewController: addVC)
         navController.modalPresentationStyle = .fullScreen
@@ -263,6 +271,31 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
         return cell
     }
     
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        let transaction = transactions[indexPath.row]
+        presentAddTransactionViewController(transaction, at: indexPath.row)
+    }
+    
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let deleteAction = UIContextualAction(style: .destructive, title: "Delete") { [weak self] (_, _, completionHandler) in
+            guard let self = self else { return }
+            
+            // Remove the transaction
+            self.transactions.remove(at: indexPath.row)
+            
+            // Delete the row from the table view
+            tableView.deleteRows(at: [indexPath], with: .fade)
+            
+            // Update balance info
+            self.updateBalanceInfo()
+            
+            completionHandler(true)
+        }
+        let configuration = UISwipeActionsConfiguration(actions: [deleteAction])
+        return configuration
+    }
+    
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 100
     }
@@ -274,6 +307,14 @@ extension HomeViewController: AddTransactionDelegate {
         transactions.append(transaction)
         tableView.reloadData()
         updateBalanceInfo()
+    }
+    
+    func didUpdateTransaction(_ transaction: Transaction, at index: Int) {
+        if index < transactions.count {
+            transactions[index] = transaction
+            tableView.reloadData()
+            updateBalanceInfo()
+        }
     }
 }
 

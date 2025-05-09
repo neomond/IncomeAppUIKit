@@ -17,6 +17,8 @@ class AddTransactionViewController: UIViewController {
     private var amount: Double = 0.0
     private var transactionTitle: String = ""
     private var selectedTransactionType: TransactionType = .expense
+    private var transactionToEdit: Transaction?
+    private var indexToEdit: Int?
     
     // MARK: - UI Elements
     private lazy var amountTextField: UITextField = {
@@ -24,7 +26,7 @@ class AddTransactionViewController: UIViewController {
         textField.font = UIFont.systemFont(ofSize: 60, weight: .thin)
         textField.textAlignment = .center
         textField.keyboardType = .decimalPad
-        textField.placeholder = "0.00"
+        textField.placeholder = "₼0.00"
         textField.delegate = self
         return textField
     }()
@@ -65,6 +67,7 @@ class AddTransactionViewController: UIViewController {
         super.viewDidLoad()
         setupView()
         setupNavigationBar()
+        configureInitialData()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -110,12 +113,24 @@ class AddTransactionViewController: UIViewController {
     }
     
     private func setupNavigationBar() {
-        title = "Add Transaction"
+        title = transactionToEdit == nil ? "Add Transaction" : "Edit Transaction"
         navigationItem.leftBarButtonItem = UIBarButtonItem(
             barButtonSystemItem: .cancel,
             target: self,
             action: #selector(cancelTapped)
         )
+    }
+    
+    private func configureInitialData(){
+        guard let transaction = transactionToEdit else { return }
+        
+        amountTextField.text = String(format: "%.2f", transaction.amount)
+        titleTextField.text = transaction.title
+        selectedTransactionType = transaction.type
+        typeSegmentedControl.selectedSegmentIndex = transaction.type == .income ? 0 : 1
+        
+        // Update the button title to "Update" instead of "Create"
+        createButton.setTitle("Update", for: .normal)
     }
     
     // MARK: - Actions
@@ -152,9 +167,20 @@ class AddTransactionViewController: UIViewController {
             date: Date()
         )
         
-        delegate?.didAddTransaction(transaction)
+        if transactionToEdit != nil, let indexToEdit = indexToEdit {
+            delegate?.didUpdateTransaction(transaction, at: indexToEdit)
+        } else {
+            delegate?.didAddTransaction(transaction)
+        }
+        
         dismissDelegate?.didDismissTransaction()
     }
+    
+    // MARK: - Public Methods
+       func configureForEditing(transaction: Transaction, at index: Int) {
+           self.transactionToEdit = transaction
+           self.indexToEdit = index
+       }
     
     // MARK: - Helper Methods
     private func showAlert(title: String, message: String) {
